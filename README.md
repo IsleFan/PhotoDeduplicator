@@ -1,137 +1,174 @@
-# 智能照片重複檢測與清理工具
+# PhotoDeduplicator
 
 [![Python Version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-一個強大的Python工具，能夠智能識別多個資料夾中的重複照片，即使在不同解析度下也能準確比對。支援跨目錄比對，自動保留高解析度照片，安全清理重複項目。
+A powerful Python tool that intelligently identifies duplicate photos across multiple directories, even with different resolutions. Automatically preserves high-resolution photos while safely cleaning up duplicates.
 
-## ✨ 主要特色
+## ✨ Key Features
 
-- 🔍 **智能內容比對**: 使用感知雜湊技術，能識別相同內容但不同解析度的照片
-- 🎯 **多重檢測算法**: 結合pHash、dHash、wHash三種算法，提高檢測準確性
-- 📁 **多目錄支援**: 支援同時掃描多個資料夾，並能識別跨資料夾的重複照片
-- 🔄 **深度掃描**: 遞迴掃描所有子目錄，或選擇僅掃描指定目錄
-- 📐 **智能保留策略**: 自動保留解析度最高的照片，刪除低解析度重複項
-- 🛡️ **安全機制**: 執行前完整預覽，需用戶確認才執行刪除
-- 📝 **詳細記錄**: 自動生成刪除記錄，可追蹤操作歷史
-- 🎨 **多格式支援**: 支援JPG、PNG、GIF、BMP、TIFF、WebP等主流格式
+- 🔍 **Smart Content Comparison**: Uses perceptual hashing to identify identical content at different resolutions
+- 🎯 **Multi-Hash Algorithms**: Combines pHash, dHash, and wHash algorithms for improved accuracy
+- 📁 **Multi-Directory Support**: Scan multiple folders simultaneously and detect cross-directory duplicates
+- 🔄 **Deep Scanning**: Recursively scan all subdirectories or choose directory-only scanning
+- 📐 **Intelligent Retention Strategy**: Automatically keeps highest resolution photos, removes lower quality duplicates
+- 🛡️ **Safety Mechanisms**: Complete preview before execution, user confirmation required
+- 📝 **Detailed Logging**: Automatic deletion log generation for operation tracking
+- 🎨 **Multi-Format Support**: Supports JPG, PNG, GIF, BMP, TIFF, WebP and other mainstream formats
 
-## 🚀 快速開始
+## 🚀 Quick Start
 
-### 安裝依賴
+### Install Dependencies
 
 ```bash
 pip install Pillow imagehash
 ```
 
-### 基本使用
+### Basic Usage
 
-#### 方式一：互動模式（推薦新手）
-
-```bash
-python photo_cleaner.py
-```
-
-程式會引導您輸入資料夾路徑和設定參數，支援一次輸入多個資料夾。
-
-#### 方式二：命令列模式（推薦進階用戶）
+#### Method 1: Interactive Mode (Recommended for beginners)
 
 ```bash
-# 掃描單一資料夾
-python photo_cleaner.py /path/to/your/photos
-
-# 掃描多個資料夾
-python photo_cleaner.py ~/Pictures ~/Downloads/Photos ~/Desktop/Images
-
-# 不遞迴掃描子目錄
-python photo_cleaner.py ~/Pictures --no-recursive
-
-# 自訂參數
-python photo_cleaner.py ~/Pictures ~/Downloads --hash-size 8 --threshold 5
+python photo_deduplicator.py
 ```
 
-## 📋 使用範例
+The program will guide you through entering folder paths and configuration parameters, supporting multiple folders at once.
 
-### 清理下載資料夾的重複照片
+#### Method 2: Command Line Mode (Recommended for advanced users)
 
 ```bash
-python photo_cleaner.py ~/Downloads/Photos
+# Scan single folder
+python photo_deduplicator.py /path/to/your/photos
+
+# Scan multiple folders
+python photo_deduplicator.py ~/Pictures ~/Downloads/Photos ~/Desktop/Images
+
+# No recursive subdirectory scanning
+python photo_deduplicator.py ~/Pictures --no-recursive
+
+# Custom parameters
+python photo_deduplicator.py ~/Pictures ~/Downloads --hash-size 8 --threshold 5
 ```
 
-### 高精度模式清理（更嚴格的比對）
+## 📋 Usage Examples
+
+### Clean duplicate photos in Downloads folder
 
 ```bash
-python photo_cleaner.py ~/Pictures --hash-size 16 --threshold 3
+python photo_deduplicator.py ~/Downloads/Photos
 ```
 
-### 快速模式清理（較寬鬆的比對）
+### High precision mode cleaning (stricter comparison)
 
 ```bash
-python photo_cleaner.py ~/Pictures --hash-size 4 --threshold 8
+python photo_deduplicator.py ~/Pictures --hash-size 16 --threshold 3
 ```
 
-## ⚙️ 參數說明
+### Fast mode cleaning (more lenient comparison)
 
-| 參數 | 預設值 | 說明 |
-|------|--------|------|
-| `folder` | 必須 | 要掃描的資料夾路徑 |
-| `--hash-size` | 8 | 雜湊大小，數值越大越精確但速度較慢（建議範圍：4-16） |
-| `--threshold` | 5 | 相似度閾值，數值越小比對越嚴格（建議範圍：3-10） |
+```bash
+python photo_deduplicator.py ~/Pictures --hash-size 4 --threshold 8
+```
 
-### 參數調整建議
+### Scan multiple photo libraries
 
-- **追求速度**: `--hash-size 4 --threshold 8`
-- **平衡模式**: `--hash-size 8 --threshold 5`（預設）
-- **追求精度**: `--hash-size 16 --threshold 3`
+```bash
+python photo_deduplicator.py ~/Pictures ~/Photos ~/Desktop/Images ~/Downloads
+```
 
-## 🔧 工作原理
+## ⚙️ Parameters
 
-1. **掃描階段**: 遞迴掃描指定資料夾，找出所有支援的圖片格式
-2. **分析階段**: 為每張照片計算多種感知雜湊值
-3. **比對階段**: 使用雜湊值比對找出內容相似的照片群組
-4. **篩選階段**: 在每個重複群組中選擇解析度最高的照片保留
-5. **預覽階段**: 顯示詳細的刪除清單供用戶確認
-6. **執行階段**: 安全刪除重複照片並生成操作記錄
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `folders` | Required | Folder paths to scan (supports multiple) |
+| `--hash-size` | 8 | Hash size, larger values are more precise but slower (recommended range: 4-16) |
+| `--threshold` | 5 | Similarity threshold, smaller values are stricter (recommended range: 3-10) |
+| `--no-recursive` | False | Don't scan subdirectories recursively |
 
-## 📊 輸出範例
+### Parameter Tuning Recommendations
+
+- **Speed Priority**: `--hash-size 4 --threshold 8`
+- **Balanced Mode**: `--hash-size 8 --threshold 5` (default)
+- **Precision Priority**: `--hash-size 16 --threshold 3`
+
+## 🔧 How It Works
+
+1. **Scanning Phase**: Recursively scan specified folders to find all supported image formats
+2. **Analysis Phase**: Calculate multiple perceptual hash values for each photo
+3. **Comparison Phase**: Use hash values to compare and find groups of similar content
+4. **Filtering Phase**: Select highest resolution photo to keep in each duplicate group
+5. **Preview Phase**: Display detailed deletion list for user confirmation
+6. **Execution Phase**: Safely delete duplicate photos and generate operation log
+
+## 📊 Output Example
 
 ```
-智能照片重複檢測與清理工具
-==================================================
-開始掃描資料夾: /Users/username/Pictures
-找到 1250 張照片
-已處理 10 張照片...
-已處理 20 張照片...
-...
-成功處理 1250 張照片
-開始比對重複照片...
-找到 15 個重複照片群組
+🖼️  Smart Photo Duplicate Detection & Cleanup Tool (Multi-Directory)
+======================================================================
+Starting scan of 3 folders:
+  - /Users/username/Pictures
+  - /Users/username/Downloads/Photos
+  - /Users/username/Desktop/Images
 
-================================================================================
-重複照片清理預覽
-================================================================================
+📁 Scanning folder: /Users/username/Pictures
+   (including all subdirectories)
+   Found 1250 photos
+   ✅ Successfully processed 1250 photos
 
-群組 1 (共 3 張重複照片):
+📊 Scan Summary:
+   Total found: 2847 photos
+   Successfully processed: 2847 photos
+
+📈 Folder Statistics:
+📁 Pictures:
+   Path: /Users/username/Pictures
+   Photo count: 1250 photos
+   Total size: 2847.32 MB
+
+🔍 Starting duplicate photo comparison...
+   Comparison progress: 50.0% (125000/250000)
+✅ Found 23 duplicate photo groups
+
+📊 Duplicate Type Analysis:
+   Cross-directory duplicates: 8 groups
+   Same-directory duplicates: 15 groups
+
+====================================================================================================
+Duplicate Photo Cleanup Preview
+====================================================================================================
+
+Group 1 (3 duplicate photos total):
+--------------------------------------------------------------------------------
+🔄 Cross-directory duplicate (involves 2 folders)
+✅ Keep: IMG_001_4K.jpg
+   📁 Folder: Pictures
+   📐 Resolution: 3840x2160 (8,294,400 pixels)
+   💾 File size: 2,547,832 bytes
+❌ Delete: IMG_001_HD.jpg
+   📁 Folder: Downloads
+   📐 Resolution: 1920x1080 (2,073,600 pixels)
+   💾 File size: 1,245,678 bytes
+❌ Delete: IMG_001_thumb.jpg
+   📁 Folder: Desktop
+   📐 Resolution: 640x360 (230,400 pixels)
+   💾 File size: 125,431 bytes
+
+📊 Summary:
+   Will delete: 45 duplicate photos
+   Will keep: 23 high-resolution photos
+   Cross-directory duplicate groups: 8
+   Estimated space savings: 127,234,567 bytes (121.34 MB)
+
+📁 Deletion Statistics by Folder:
 ------------------------------------------------------------
-✓ 保留: IMG_001_4K.jpg
-   解析度: 3840x2160 (8,294,400 像素)
-   檔案大小: 2,547,832 bytes
-✗ 刪除: IMG_001_HD.jpg
-   解析度: 1920x1080 (2,073,600 像素)
-   檔案大小: 1,245,678 bytes
-✗ 刪除: IMG_001_thumb.jpg
-   解析度: 640x360 (230,400 像素)
-   檔案大小: 125,431 bytes
+📁 Downloads: 28 photos, 67.45 MB
+📁 Desktop: 12 photos, 23.21 MB
+📁 Pictures: 5 photos, 30.68 MB
 
-總計:
-- 將刪除 28 張重複照片
-- 將保留 15 張高解析度照片
-- 預計節省空間: 45,234,567 bytes (43.15 MB)
-
-是否確定執行刪除操作? (輸入 'yes' 確認, 其他任何輸入取消)
+❓ Confirm deletion operation? (Enter 'yes' to confirm, any other input cancels)
 ```
 
-## 📁 支援的檔案格式
+## 📁 Supported File Formats
 
 - `.jpg` / `.jpeg`
 - `.png`
@@ -140,98 +177,163 @@ python photo_cleaner.py ~/Pictures --hash-size 4 --threshold 8
 - `.tiff`
 - `.webp`
 
-## 🛡️ 安全特性
+## 🛡️ Safety Features
 
-### 多重保護機制
+### Multiple Protection Mechanisms
 
-1. **預覽確認**: 執行前顯示完整刪除清單
-2. **明確確認**: 必須輸入 'yes' 才執行刪除
-3. **操作記錄**: 自動生成 `deletion_log.json` 記錄檔案
-4. **錯誤處理**: 妥善處理檔案讀取和刪除錯誤
+1. **Preview Confirmation**: Display complete deletion list before execution
+2. **Explicit Confirmation**: Must enter 'yes' to execute deletion
+3. **Operation Logging**: Automatically generate `deletion_log.json` log file
+4. **Error Handling**: Properly handle file read and deletion errors
 
-### 記錄檔案範例
+### Log File Example
 
 ```json
 {
   "timestamp": "2024-06-02T14:30:25.123456",
-  "deleted_files": [
-    {
-      "path": "/Users/username/Pictures/IMG_001_HD.jpg",
-      "resolution": "1920x1080",
-      "file_size": 1245678
-    }
+  "scan_folders": [
+    "/Users/username/Pictures",
+    "/Users/username/Downloads/Photos"
   ],
-  "total_deleted": 28,
-  "total_space_saved": 45234567
+  "recursive_scan": true,
+  "settings": {
+    "hash_size": 8,
+    "similarity_threshold": 5
+  },
+  "deletion_by_folder": {
+    "/Users/username/Pictures": [
+      {
+        "path": "/Users/username/Pictures/IMG_001_HD.jpg",
+        "relative_path": "IMG_001_HD.jpg",
+        "resolution": "1920x1080",
+        "file_size": 1245678
+      }
+    ]
+  },
+  "summary": {
+    "total_deleted": 45,
+    "total_space_saved": 127234567,
+    "folders_affected": 3
+  }
 }
 ```
 
-## 🔍 進階使用技巧
+## 🔍 Advanced Usage Tips
 
-### 批次處理多個資料夾
+### Batch Processing Multiple Folder Sets
 
 ```bash
-# 建立批次處理腳本
-for folder in ~/Pictures/2023 ~/Pictures/2024 ~/Downloads; do
-    python photo_cleaner.py "$folder"
+# Create batch processing script
+for folder_set in "~/Pictures ~/Downloads" "~/Photos/2023 ~/Photos/2024"; do
+    python photo_deduplicator.py $folder_set
 done
 ```
 
-### 結合其他工具
+### Integration with Other Tools
 
 ```bash
-# 先備份再清理
+# Backup before cleanup
 rsync -av ~/Pictures/ ~/Pictures_backup/
-python photo_cleaner.py ~/Pictures
+python photo_deduplicator.py ~/Pictures
+
+# Check available space before processing
+df -h ~/Pictures
+python photo_deduplicator.py ~/Pictures
 ```
 
-## ⚠️ 注意事項
+### Advanced Configuration
 
-1. **備份重要**: 建議執行前先備份重要照片
-2. **權限確認**: 確保程式有足夠權限讀寫目標資料夾
-3. **空間檢查**: 大型資料夾可能需要較長處理時間
-4. **記憶體使用**: 處理大量照片時會消耗較多記憶體
+```bash
+# High precision mode for professional photos
+python photo_deduplicator.py ~/Professional_Photos --hash-size 16 --threshold 2
 
-## 🐛 常見問題
+# Fast cleanup for large archives
+python photo_deduplicator.py ~/Archive --hash-size 4 --threshold 8 --no-recursive
+```
 
-### Q: 程式處理速度很慢怎麼辦？
-A: 可以調整 `--hash-size` 為較小值（如4），或增加 `--threshold` 值以加快處理速度。
+## ⚠️ Important Notes
 
-### Q: 擔心誤刪重要照片？
-A: 程式會在執行前顯示完整預覽，並且只有明確輸入 'yes' 才會執行刪除。建議先備份重要資料。
+1. **Backup Important**: Recommend backing up important photos before execution
+2. **Permission Check**: Ensure program has sufficient permissions to read/write target folders
+3. **Space Check**: Large folders may require longer processing time
+4. **Memory Usage**: Processing large numbers of photos will consume more memory
 
-### Q: 為什麼某些明顯重複的照片沒有被識別？
-A: 可能是相似度閾值設定過於嚴格，嘗試增加 `--threshold` 參數值。
+## 🐛 Troubleshooting
 
-### Q: 可以恢復已刪除的照片嗎？
-A: 程式會生成 `deletion_log.json` 記錄檔案，但無法直接恢復。建議使用系統資源回收筒或專業恢復工具。
+### Q: Program processing is very slow?
+A: You can adjust `--hash-size` to a smaller value (like 4), or increase `--threshold` value to speed up processing.
 
-## 🤝 貢獻指南
+### Q: Worried about accidentally deleting important photos?
+A: The program displays a complete preview before execution, and only executes deletion with explicit 'yes' input. Recommend backing up important data first.
 
-歡迎提交Issue和Pull Request來幫助改進這個工具！
+### Q: Why aren't some obviously duplicate photos being detected?
+A: The similarity threshold might be set too strictly. Try increasing the `--threshold` parameter value.
 
-### 開發環境設置
+### Q: Can deleted photos be recovered?
+A: The program generates a `deletion_log.json` log file but cannot directly recover photos. Recommend using system recycle bin or professional recovery tools.
+
+### Q: How to handle very large photo collections?
+A: For collections with 10,000+ photos, consider:
+- Using `--hash-size 4` for faster processing
+- Processing folders in batches
+- Running during off-peak hours
+- Ensuring sufficient RAM (8GB+ recommended)
+
+## 🤝 Contributing
+
+Welcome to submit Issues and Pull Requests to help improve this tool!
+
+### Development Environment Setup
 
 ```bash
 git clone <repository-url>
-cd photo-duplicate-cleaner
+cd PhotoDeduplicator
 pip install -r requirements.txt
 ```
 
-### 執行測試
+### Running Tests
 
 ```bash
 python -m pytest tests/
 ```
 
-## 📄 授權條款
+### Code Style
 
-本專案採用 MIT 授權條款 - 詳見 [LICENSE](LICENSE) 檔案
+- Follow PEP 8 coding standards
+- Use meaningful variable and function names
+- Add appropriate comments and docstrings
+- Ensure cross-platform compatibility
 
-## 👨‍💻 作者
+## 📈 Performance Benchmarks
 
-由專案管理與系統開發專家打造，專注於提供實用且安全的檔案管理工具。
+| Photo Count | Processing Time | Memory Usage | Recommended Settings |
+|-------------|----------------|--------------|---------------------|
+| < 1,000     | < 30 seconds   | < 500MB      | Default settings    |
+| 1,000-5,000 | 1-5 minutes    | 500MB-2GB    | --hash-size 8       |
+| 5,000-10,000| 5-15 minutes   | 2GB-4GB      | --hash-size 6       |
+| > 10,000    | 15+ minutes    | 4GB+         | --hash-size 4       |
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Pillow](https://pillow.readthedocs.io/) - Python Imaging Library
+- [ImageHash](https://github.com/JohannesBuchner/imagehash) - Perceptual image hashing
+- Community contributors and testers
+
+## 👨‍💻 Author
+
+Created by a project management and system development expert, focused on providing practical and safe file management tools.
 
 ---
 
-**⭐ 如果這個工具對您有幫助，請給個星星支持！**
+**⭐ If this tool helps you, please give it a star for support!**
+
+## 📞 Support
+
+- 🐛 **Bug Reports**: [Create an Issue](../../issues)
+- 💡 **Feature Requests**: [Create an Issue](../../issues)
+- 📖 **Documentation**: Check the [Wiki](../../wiki)
+- 💬 **Discussions**: [Join Discussions](../../discussions)
